@@ -14,3 +14,4 @@ coverage.xml
 artifacts/
 
 plan.md
+tmp-e2e/

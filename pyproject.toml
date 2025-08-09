@@ -39,4 +39,8 @@ addopts = "-q"
 markers = [
   "e2e: end-to-end tests"
 ]
+testpaths = [
+  "tests/unit",
+  "tests/integration"
+]
 

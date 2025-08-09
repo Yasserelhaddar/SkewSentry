@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/
+.coverage
+coverage.xml
+.DS_Store
+artifacts/
+
+plan.md

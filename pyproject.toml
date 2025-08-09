@@ -24,7 +24,8 @@ dev = [
   "tabulate",
   "rich",
   "build",
-  "orjson"
+  "orjson",
+  "ipykernel"
 ]
 
 [project.scripts]

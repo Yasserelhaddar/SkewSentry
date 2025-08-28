@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import List, Optional
+
+# Ensure current working directory is in Python path for module imports
+if os.getcwd() not in sys.path:
+    sys.path.insert(0, os.getcwd())
 
 import pandas as pd
 import typer

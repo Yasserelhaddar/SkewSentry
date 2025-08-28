@@ -525,6 +525,11 @@ skewsentry/
 
 ## Roadmap
 
+### v0.1.1 - CLI Fix ✅
+- [x] Fixed CLI module import path for proper `skewsentry check` command execution
+- [x] Resolved issue where user modules couldn't be imported from current directory
+- [x] Improved CI/CD workflow compatibility
+
 ### v0.2.0 - Enhanced Analysis
 - [ ] Statistical significance testing (KS-test, chi-square)
 - [ ] Feature drift detection over time

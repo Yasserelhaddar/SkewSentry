@@ -1,17 +1,48 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.so
+
+# Testing
 .pytest_cache/
 .mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Building & Distribution
 dist/
 build/
 *.egg-info/
-.coverage
-coverage.xml
-.DS_Store
-artifacts/
+*.whl
+*.tar.gz
 
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+artifacts/
+uv.lock
 plan.md
 tmp-e2e/
+
+# Generated example outputs
+examples/*/report.html
+examples/*/results.json
+examples/*/artifacts/
+
+# Node.js (for HTTP example)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,18 @@
+version: 1
+keys: ["user_id", "ts"]
+features:
+  - name: spend_7d
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.01
+      rel: 0.001
+    window:
+      lookback_days: 7
+      timestamp_col: "ts"
+      closed: "right"
+  - name: country
+    dtype: category
+    categories: ["UK", "US", "DE"]
+    nullable: false
+null_policy: "same"

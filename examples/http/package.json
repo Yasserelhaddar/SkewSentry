@@ -1,0 +1,17 @@
+{
+  "name": "skewsentry-http-adapter-example",
+  "version": "1.0.0",
+  "description": "Node.js microservice for SkewSentry HTTP adapter testing",
+  "main": "online_service.js",
+  "scripts": {
+    "start": "node online_service.js",
+    "dev": "nodemon online_service.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

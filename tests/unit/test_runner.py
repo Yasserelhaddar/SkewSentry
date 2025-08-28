@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from skewsentry.adapters.python_func import PythonFunctionAdapter
+from skewsentry.adapters.python import PythonFunctionAdapter
 from skewsentry.runner import run_check
 from skewsentry.spec import Feature, FeatureSpec, Tolerance
 

@@ -35,13 +35,13 @@ def test_cli_check_end_to_end(tmp_path: Path):
     pq = tmp_path / "data.parquet"
     df.to_parquet(pq, index=False)
 
-    # Write example feature funcs in tmp
-    (tmp_path / "offline_features.py").write_text((Path("examples/simple/offline_features.py").read_text()), encoding="utf-8")
-    (tmp_path / "online_features.py").write_text((Path("examples/simple/online_features.py").read_text()), encoding="utf-8")
+    # Write example feature funcs in tmp with unique names to avoid import cache conflicts
+    (tmp_path / "cli_offline_features.py").write_text((Path("examples/python/offline_features.py").read_text()), encoding="utf-8")
+    (tmp_path / "cli_online_features.py").write_text((Path("examples/python/online_features.py").read_text()), encoding="utf-8")
 
     # Spec file copied
     spec_path = tmp_path / "features.yml"
-    spec_path.write_text((Path("examples/simple/features.yml").read_text()), encoding="utf-8")
+    spec_path.write_text((Path("examples/python/features.yml").read_text()), encoding="utf-8")
 
     import sys
 
@@ -54,9 +54,9 @@ def test_cli_check_end_to_end(tmp_path: Path):
             "--spec",
             str(spec_path),
             "--offline",
-            "offline_features:build_features",
+            "cli_offline_features:build_features",
             "--online",
-            "online_features:get_features",
+            "cli_online_features:get_features",
             "--data",
             str(pq),
             "--json",

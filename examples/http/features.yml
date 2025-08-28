@@ -1,0 +1,106 @@
+version: 1
+keys: ["user_id", "timestamp"]
+
+# Real-world feature specification for e-commerce ML model
+# This spec defines tolerances based on business requirements and model sensitivity
+
+features:
+  # === SPENDING FEATURES ===
+  # Critical for model performance - tight tolerances
+  
+  - name: spend_7d
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.10      # $0.10 absolute tolerance (tight for financial features)
+      rel: 0.001     # 0.1% relative tolerance
+    window:
+      lookback_days: 7
+      timestamp_col: "timestamp"
+      closed: "right"
+      
+  - name: spend_30d  
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.50      # $0.50 absolute tolerance (slightly looser for longer window)
+      rel: 0.002     # 0.2% relative tolerance
+    window:
+      lookback_days: 30
+      timestamp_col: "timestamp"
+      closed: "right"
+      
+  - name: txn_count_7d
+    dtype: int
+    nullable: true
+    tolerance:
+      abs: 0         # Count must be exact
+    window:
+      lookback_days: 7
+      timestamp_col: "timestamp"
+      closed: "right"
+
+  # === BEHAVIORAL FEATURES ===
+  # Moderate impact on model - reasonable tolerances
+  
+  - name: electronics_affinity
+    dtype: float  
+    nullable: true
+    tolerance:
+      abs: 0.005     # 0.5% absolute tolerance for percentages
+      rel: 0.05      # 5% relative tolerance
+    range: [0.0, 1.0]
+    
+  - name: avg_days_between_txns
+    dtype: float
+    nullable: true  
+    tolerance:
+      abs: 0.5       # Half day tolerance
+      rel: 0.1       # 10% relative tolerance
+      
+  - name: return_rate
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.01      # 1% absolute tolerance for rates
+      rel: 0.1       # 10% relative tolerance
+    range: [0.0, 1.0]
+    
+  - name: weekend_frequency
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.01      # 1% absolute tolerance
+      rel: 0.1       # 10% relative tolerance  
+    range: [0.0, 1.0]
+    
+  - name: days_since_last_txn
+    dtype: float
+    nullable: true
+    tolerance:
+      abs: 0.5       # Half day tolerance
+      rel: 0.05      # 5% relative tolerance
+
+  # === RISK FEATURES ===
+  # Note: Removed is_high_value boolean feature (not yet supported in v0.1.0)
+
+  # === CATEGORICAL FEATURES ===
+  # Must match exactly, with known valid values
+  
+  - name: country
+    dtype: category
+    categories: ["US", "UK", "DE", "FR", "CA", "AU", "JP", "NL", "IT", "ES", "UNKNOWN", "OTHER"]
+    nullable: false
+    
+  - name: user_type  
+    dtype: category
+    categories: ["casual", "regular", "power", "enterprise"]
+    nullable: false
+    
+  - name: primary_payment_method
+    dtype: category
+    categories: ["credit_card", "debit_card", "paypal", "apple_pay", "google_pay", "UNKNOWN", "OTHER"]
+    nullable: false
+
+# Null handling policy
+null_policy: "same"  # Nulls must match between offline and online

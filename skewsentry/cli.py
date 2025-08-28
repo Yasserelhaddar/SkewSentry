@@ -12,7 +12,8 @@ from . import __version__
 from .errors import ConfigurationError
 from .runner import run_check
 from .spec import Feature, FeatureSpec
-from .adapters.python_func import PythonFunctionAdapter
+from .adapters.python import PythonFunctionAdapter
+from .adapters.http import HTTPAdapter
 
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="SkewSentry CLI")
@@ -83,8 +84,15 @@ def check(
 ) -> None:
     try:
         spec_obj = FeatureSpec.from_yaml(spec)
+        
+        # Create offline adapter (always Python function)
         offline_adapter = PythonFunctionAdapter(offline)
-        online_adapter = PythonFunctionAdapter(online)
+        
+        # Create online adapter (detect HTTP URLs vs Python functions)
+        if online.startswith(('http://', 'https://')):
+            online_adapter = HTTPAdapter(url=online, timeout=timeout or 10.0)
+        else:
+            online_adapter = PythonFunctionAdapter(online)
 
         report = run_check(
             spec=spec_obj,

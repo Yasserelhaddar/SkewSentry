@@ -1,4 +1,5 @@
-from .python_func import PythonFunctionAdapter
+from .python import PythonFunctionAdapter
+from .http import HTTPAdapter
 
-__all__ = ["PythonFunctionAdapter"]
+__all__ = ["PythonFunctionAdapter", "HTTPAdapter"]
 

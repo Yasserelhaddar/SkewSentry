@@ -1,49 +1,59 @@
-# SkewSentry
-
 <div align="center">
-
-**Catch training ↔ serving feature skew before you ship**
-
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Test Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen.svg)](https://pytest.org/)
-
-Compare offline vs online feature pipelines with configurable tolerances and generate actionable reports for CI integration.
-
+  
+  <img src="assets/SkewSentry_Logo.png" alt="SkewSentry Logo" width="200">
+  
+  # SkewSentry
+  
+  **Catch training ↔ serving feature skew before you ship to production**
+  
+  [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Test Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen.svg)](https://pytest.org/)
+  
+  *Prevent ML model failures with automated feature parity validation*
+  
 </div>
 
-## Table of Contents
-- [Why SkewSentry?](#why-skewsentry)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Feature Specification](#feature-specification)
-- [Adapters](#adapters)
-- [Reporting](#reporting)
-- [CI Integration](#ci-integration)
-- [Examples](#examples)
-- [Development](#development)
-- [Roadmap](#roadmap)
+---
 
-## Why SkewSentry?
+## 🚀 Why SkewSentry?
 
-**The Problem**: 70% of ML model failures in production stem from training/serving skew - subtle differences between how features are computed during training vs serving. These bugs are notoriously difficult to detect and can silently degrade model performance for months.
+SkewSentry transforms fragile ML deployments into reliable production systems through automated feature parity validation.
 
-**Common Sources of Skew**:
-- Different windowing logic (`min_periods=1` vs `closed="left"`)
-- Rounding differences (`round(2)` vs `math.floor`)
-- Timezone handling inconsistencies
-- Library version differences
-- Data type conversions
+### 💰 **Prevent Costly ML Failures**
+- **70% of ML failures** stem from training/serving skew
+- **Months of silent degradation** before detection
+- **Lost revenue and customer trust** from broken predictions
 
-**The Solution**: SkewSentry validates feature parity by running identical input data through both pipelines and comparing outputs with configurable tolerances. Catch these issues in CI before they reach production.
+### ⚡ **Production-Ready Validation**
+- **Pre-deployment detection** - Catch issues in CI before they ship
+- **Configurable tolerances** - Handle expected differences intelligently  
+- **Multi-source support** - Python functions, HTTP APIs, any feature pipeline
+- **Rich reporting** - HTML reports with detailed mismatch analysis
 
-## Quick Start
+### 🔧 **Developer-First Design**
+- **Zero configuration** - Works out of the box with intelligent defaults
+- **CI integration** - Exit codes for automated validation gates
+- **Multiple formats** - Text, JSON, and HTML reports for different use cases
 
+## 📦 Installation
+
+### Production
 ```bash
-# Install
-pip install -e ".[dev]"
+pip install skewsentry
+```
 
+### Development
+```bash
+uv venv .venv
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+## ⚡ Quickstart
+
+### Basic Feature Parity Check
+```python
 # Initialize spec from your data
 skewsentry init features.yml --data validation.parquet --keys user_id timestamp
 
@@ -60,27 +70,68 @@ skewsentry check \
 # 🚨 Exit 2: Configuration error
 ```
 
-## Installation
+### Realistic Example: E-commerce Features
+```yaml
+# features.yml
+version: 1
+keys: ["user_id", "timestamp"]
 
-**Requirements**: Python 3.9+, pandas 2.0+
-
-### Using uv (Recommended)
-```bash
-pipx install uv
-uv venv .venv && source .venv/bin/activate
-uv pip install -e ".[dev]"
+features:
+  - name: total_spend_7d
+    dtype: float
+    tolerance:
+      abs: 0.01  # $0.01 absolute tolerance
+      rel: 0.001  # 0.1% relative tolerance
+      
+  - name: order_count_30d
+    dtype: int
+    tolerance:
+      abs: 1  # Allow 1 order difference
 ```
 
-### Using pip
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+```python
+# Offline pipeline (training)
+def extract_features(df):
+    return df.assign(
+        total_spend_7d=df.groupby('user_id')['amount'].rolling('7D').sum(),
+        order_count_30d=df.groupby('user_id').size().rolling('30D').sum()
+    )
+
+# Online pipeline (serving) - subtle differences
+def get_features(df):
+    return df.assign(
+        total_spend_7d=df.groupby('user_id')['amount'].rolling('7D', closed='right').sum(),  # Different windowing!
+        order_count_30d=df.groupby('user_id').size().rolling('30D').sum()
+    )
 ```
 
-### Dependencies
-- **Core**: pandas, pydantic, typer, jinja2, pyyaml, requests
-- **Optional**: feast (feature store integration), scipy (statistical tests)
-- **Dev**: pytest, pytest-cov, rich, tabulate
+**SkewSentry catches the windowing difference:**
+```bash
+❌ Feature parity violations detected:
+  - total_spend_7d: mismatch_rate=0.1200 rows=5000 mean_abs_diff=0.0845
+```
+
+## 🏗️ Feature Adapters
+
+SkewSentry works with any feature pipeline through adapters:
+
+### Python Functions
+```python
+# Direct Python function integration
+from skewsentry.adapters import PythonFunctionAdapter
+
+adapter = PythonFunctionAdapter("mymodule:extract_features")
+features = adapter.get_features(input_data)
+```
+
+### HTTP APIs
+```python
+# REST API integration with automatic batching
+from skewsentry.adapters import HTTPAdapter
+
+adapter = HTTPAdapter("http://api.example.com/features", timeout=30.0)
+features = adapter.get_features(input_data)
+```
 
 ## Usage
 
@@ -110,8 +161,8 @@ skewsentry check \
 
 ```python
 from skewsentry import FeatureSpec
-from skewsentry.adapters.python_func import PythonFunctionAdapter
-from skewsentry.adapters.http_adapter import HTTPAdapter
+from skewsentry.adapters.python import PythonFunctionAdapter
+from skewsentry.adapters.http import HTTPAdapter
 from skewsentry.runner import run_check
 
 # Define feature comparison rules
@@ -216,7 +267,7 @@ SkewSentry supports multiple adapter types to connect with different feature pip
 For in-process Python functions:
 
 ```python
-from skewsentry.adapters.python_func import PythonFunctionAdapter
+from skewsentry.adapters.python import PythonFunctionAdapter
 
 # Your feature function signature
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -239,7 +290,7 @@ adapter = PythonFunctionAdapter("mypackage.features:extract_features")
 For REST API endpoints:
 
 ```python
-from skewsentry.adapters.http_adapter import HTTPAdapter
+from skewsentry.adapters.http import HTTPAdapter
 
 adapter = HTTPAdapter(
     url="https://features.myservice.com/batch",
@@ -256,21 +307,6 @@ adapter = HTTPAdapter(
 - **Response**: JSON array of feature records (same order)
 - **Status**: 200 for success, 4xx/5xx for errors
 
-### Feast Adapter (Optional)
-
-For Feast feature stores:
-
-```python
-from skewsentry.adapters.feast_adapter import FeastAdapter
-
-adapter = FeastAdapter(
-    registry_path="feature_repo/feature_store.yaml",
-    project="ml_pipeline",
-    features=["user_stats:spend_7d", "user_profile:country"]
-)
-```
-
-Requires `feast` package: `pip install feast`
 
 ## Reporting
 
@@ -433,7 +469,7 @@ def get_features(df):
 
 ### Complete Example
 
-See [`examples/simple/`](examples/simple/) for a runnable demonstration showing how SkewSentry catches windowing and rounding differences between offline and online pipelines.
+See [`examples/python/`](examples/python/) for a runnable demonstration showing how SkewSentry catches windowing and rounding differences between offline and online pipelines.
 
 ## Development
 
@@ -469,9 +505,8 @@ skewsentry/
 ├── adapters/                      # Pipeline adapters
 │   ├── __init__.py
 │   ├── base.py                    # FeatureAdapter protocol
-│   ├── python_func.py             # Python function adapter
-│   ├── http_adapter.py            # HTTP/REST API adapter
-│   └── feast_adapter.py           # Feast feature store adapter
+│   ├── python.py                  # Python function adapter
+│   ├── http.py                    # HTTP/REST API adapter
 ├── align.py                       # Row alignment by keys
 ├── compare.py                     # Feature comparison logic
 ├── runner.py                      # Pipeline orchestration
@@ -502,7 +537,7 @@ skewsentry/
 - [ ] Advanced sampling strategies
 - [ ] Performance benchmarking suite
 
-### v1.0.0 - Production Features
+### v4.0.0 - Production Features
 - [ ] Web dashboard for monitoring
 - [ ] Alert integrations (Slack, PagerDuty)
 - [ ] Model performance correlation analysis

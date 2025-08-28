@@ -8,7 +8,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from skewsentry.adapters.http_adapter import HTTPAdapter
+from skewsentry.adapters.http import HTTPAdapter
 
 
 class _Handler(BaseHTTPRequestHandler):

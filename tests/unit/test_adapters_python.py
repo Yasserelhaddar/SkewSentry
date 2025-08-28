@@ -7,7 +7,7 @@ from types import ModuleType
 import pandas as pd
 import pytest
 
-from skewsentry.adapters.python_func import PythonFunctionAdapter
+from skewsentry.adapters.python import PythonFunctionAdapter
 from skewsentry.errors import AdapterError
 
 

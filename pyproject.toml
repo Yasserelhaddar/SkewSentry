@@ -1,11 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "skewsentry"
 version = "0.1.0"
-description = "SkewSentry: check training ↔ serving feature parity with tolerances and clear reports"
+description = "Catch training ↔ serving feature skew before you ship to production"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
-authors = [ { name = "SkewSentry Authors" } ]
+license = { file = "LICENSE" }
+authors = [
+  { name = "Yasser El Haddar", email = "yasserelhaddar@gmail.com" }
+]
+keywords = ["ml", "machine-learning", "feature-engineering", "data-validation", "mlops", "feature-store", "training", "serving", "parity", "testing"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
 dependencies = [
   "pandas>=2.0",
   "pyarrow>=12",
@@ -18,30 +40,28 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest",
-  "pytest-cov",
-  "scipy",
-  "tabulate",
-  "rich",
-  "build",
-  "orjson",
-  "ipykernel"
+  "pytest>=7.0",
+  "pytest-cov>=4.1",
+  "scipy>=1.9",
+  "tabulate>=0.9",
+  "rich>=13.0",
+  "build>=1.0.3",
+  "orjson>=3.9; platform_python_implementation != 'PyPy'",
+  "ipykernel>=6.29.0",
 ]
 
 [project.scripts]
 skewsentry = "skewsentry.cli:app"
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [tool.pytest.ini_options]
-addopts = "-q"
+addopts = "-q -ra"
+testpaths = ["tests"]
 markers = [
-  "e2e: end-to-end tests"
+  "e2e: marks tests as end-to-end integration tests",
+  "integration: marks tests requiring external services or file system",
 ]
-testpaths = [
-  "tests/unit",
-  "tests/integration"
-]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["skewsentry*"]
 

@@ -545,7 +545,7 @@ skewsentry/
 
 ---
 
-**License**: MIT | **Python**: 3.9+ | **Maintained by**: SkewSentry Team
+**License**: MIT | **Python**: 3.9+ | **Maintained by**: Yasser El Haddar
 
 *Prevent ML model failures before they reach production. Start validating your feature pipelines today.*
 
